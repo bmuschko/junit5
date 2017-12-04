@@ -54,7 +54,8 @@ class ExtensionContextTests {
 		JupiterEngineDescriptor engineTestDescriptor = new JupiterEngineDescriptor(
 			UniqueId.root("engine", "junit-jupiter"));
 
-		JupiterEngineExtensionContext engineContext = new JupiterEngineExtensionContext(null, engineTestDescriptor);
+		JupiterEngineExtensionContext engineContext = new JupiterEngineExtensionContext(null, engineTestDescriptor,
+			null);
 
 		// @formatter:off
 		assertAll("engineContext",
@@ -77,7 +78,8 @@ class ExtensionContextTests {
 		ClassTestDescriptor nestedClassDescriptor = nestedClassDescriptor();
 		ClassTestDescriptor outerClassDescriptor = outerClassDescriptor(nestedClassDescriptor);
 
-		ClassExtensionContext outerExtensionContext = new ClassExtensionContext(null, null, outerClassDescriptor, null);
+		ClassExtensionContext outerExtensionContext = new ClassExtensionContext(null, null, outerClassDescriptor, null,
+			null);
 
 		// @formatter:off
 		assertAll("outerContext",
@@ -94,7 +96,7 @@ class ExtensionContextTests {
 		// @formatter:on
 
 		ClassExtensionContext nestedExtensionContext = new ClassExtensionContext(outerExtensionContext, null,
-			nestedClassDescriptor, null);
+			nestedClassDescriptor, null, null);
 		assertThat(nestedExtensionContext.getParent()).containsSame(outerExtensionContext);
 	}
 
@@ -105,18 +107,19 @@ class ExtensionContextTests {
 		TestMethodTestDescriptor methodTestDescriptor = methodDescriptor();
 		outerClassDescriptor.addChild(methodTestDescriptor);
 
-		ClassExtensionContext outerExtensionContext = new ClassExtensionContext(null, null, outerClassDescriptor, null);
+		ClassExtensionContext outerExtensionContext = new ClassExtensionContext(null, null, outerClassDescriptor, null,
+			null);
 
 		assertThat(outerExtensionContext.getTags()).containsExactly("outer-tag");
 		assertThat(outerExtensionContext.getRoot()).isSameAs(outerExtensionContext);
 
 		ClassExtensionContext nestedExtensionContext = new ClassExtensionContext(outerExtensionContext, null,
-			nestedClassDescriptor, null);
+			nestedClassDescriptor, null, null);
 		assertThat(nestedExtensionContext.getTags()).containsExactlyInAnyOrder("outer-tag", "nested-tag");
 		assertThat(nestedExtensionContext.getRoot()).isSameAs(outerExtensionContext);
 
 		MethodExtensionContext methodExtensionContext = new MethodExtensionContext(outerExtensionContext, null,
-			methodTestDescriptor, new OuterClass(), new ThrowableCollector());
+			methodTestDescriptor, null, new OuterClass(), new ThrowableCollector());
 		assertThat(methodExtensionContext.getTags()).containsExactlyInAnyOrder("outer-tag", "method-tag");
 		assertThat(methodExtensionContext.getRoot()).isSameAs(outerExtensionContext);
 	}
@@ -131,12 +134,12 @@ class ExtensionContextTests {
 		Object testInstance = new OuterClass();
 		Method testMethod = methodTestDescriptor.getTestMethod();
 
-		JupiterEngineExtensionContext engineExtensionContext = new JupiterEngineExtensionContext(null,
-			engineDescriptor);
+		JupiterEngineExtensionContext engineExtensionContext = new JupiterEngineExtensionContext(null, engineDescriptor,
+			null);
 		ClassExtensionContext classExtensionContext = new ClassExtensionContext(engineExtensionContext, null,
-			classTestDescriptor, null);
+			classTestDescriptor, null, null);
 		MethodExtensionContext methodExtensionContext = new MethodExtensionContext(classExtensionContext, null,
-			methodTestDescriptor, testInstance, new ThrowableCollector());
+			methodTestDescriptor, null, testInstance, new ThrowableCollector());
 
 		// @formatter:off
 		assertAll("methodContext",
@@ -159,7 +162,7 @@ class ExtensionContextTests {
 		ClassTestDescriptor classTestDescriptor = outerClassDescriptor(null);
 		EngineExecutionListener engineExecutionListener = Mockito.spy(EngineExecutionListener.class);
 		ExtensionContext extensionContext = new ClassExtensionContext(null, engineExecutionListener,
-			classTestDescriptor, null);
+			classTestDescriptor, null, null);
 
 		Map<String, String> map1 = Collections.singletonMap("key", "value");
 		Map<String, String> map2 = Collections.singletonMap("other key", "other value");
@@ -185,9 +188,9 @@ class ExtensionContextTests {
 	void usingStore() {
 		TestMethodTestDescriptor methodTestDescriptor = methodDescriptor();
 		ClassTestDescriptor classTestDescriptor = outerClassDescriptor(methodTestDescriptor);
-		ExtensionContext parentContext = new ClassExtensionContext(null, null, classTestDescriptor, null);
+		ExtensionContext parentContext = new ClassExtensionContext(null, null, classTestDescriptor, null, null);
 		MethodExtensionContext childContext = new MethodExtensionContext(parentContext, null, methodTestDescriptor,
-			new OuterClass(), new ThrowableCollector());
+			null, new OuterClass(), new ThrowableCollector());
 
 		ExtensionContext.Store childStore = childContext.getStore(Namespace.GLOBAL);
 		ExtensionContext.Store parentStore = parentContext.getStore(Namespace.GLOBAL);
